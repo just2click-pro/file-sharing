@@ -27,7 +27,12 @@ const UploadFile: FC<UploadProps> = ({
     event.stopPropagation()
     setDragActive(false)
     if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      onButtonClick()
+      if (inputRef.current !== null && inputRef.current.files !== null) {
+        handleFileUpload(
+          event.dataTransfer.files,
+          event.dataTransfer.files[0].name
+        )
+      }
     }
   }
 
@@ -40,12 +45,14 @@ const UploadFile: FC<UploadProps> = ({
   const changeHandler = async (
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<any> => {
-    const files = event.target.files
+    handleFileUpload(event.target.files, event.target.value.split("\\")[2])
+  }
+
+  const handleFileUpload = (files: FileList | null, fileName: string): void => {
     if (files && files.length > 0) {
-      imageName = event.target.value.split("\\")[2]
       const fileLoaded = files[0]
       if (fileLoaded) {
-        onFileUpload(fileLoaded, event.target.value.split("\\")[2])
+        onFileUpload(fileLoaded, fileName)
       }
     }
   }
@@ -63,6 +70,9 @@ const UploadFile: FC<UploadProps> = ({
       <form
         id="form-file-upload"
         onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
         onSubmit={(e) => e.preventDefault()}
       >
         <input
